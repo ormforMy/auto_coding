@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="${packagePath}.dao.${pojoName}Mapper" >
+  <resultMap id="BaseResultMap" type="${packagePath}.pojo.${pojoName}" extends="associationMap">
+    <#list columsList as test>
+	<#if test.isKey>
+	<id column="${test.name}" property="${test.javaProp}" />
+	<#else>
+	<result column="${test.name}" property="${test.javaProp}" />
+	</#if>
+	</#list>
+  </resultMap>
+  <sql id="Base_Column_List" >
+	<#list columsList as test>
+		<#if test_index gt 0>,</#if>`${test.name}`
+	</#list>
+  </sql>
+  <#if pk_colum_bean??>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="${pk_colum_bean.javaType}" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM `${tableName}`
+    WHERE `${pk_colum_bean.name}` = ${r"#"}{${pk_colum_bean.javaProp}}
+  </select>
+  </#if>
+  <select id="getByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM `${tableName}`
+    <include refid="map_params_where_condition" />
+    <#if pk_colum_bean??>
+    <if test="orderBy == null" >
+      ORDER BY `${pk_colum_bean.name}` DESC
+    </if>
+    </#if>
+    <if test="orderBy != null and orderBy != 'no'" >
+      ORDER BY ${r"$"}{orderBy}
+    </if>
+	LIMIT 1
+  </select>
+  <select id="aggregate" parameterType="java.util.Map" resultType="java.util.Map">
+    SELECT ${r"$"}{aggregate_sql} FROM `${tableName}`
+    <include refid="map_params_where_condition" />
+  </select>
+  <#if pk_colum_bean??>
+  <delete id="deleteByPrimaryKey" parameterType="${pk_colum_bean.javaType}" >
+    DELETE FROM `${tableName}`
+    WHERE `${pk_colum_bean.name}` = ${r"#"}{${pk_colum_bean.javaProp}}
+  </delete>
+  </#if>
+  <insert id="insert" parameterType="${packagePath}.pojo.${pojoName}" >
+    <#if pk_colum_bean?? && pk_colum_bean.isAutoIncrement>
+    <selectKey resultType="${pk_colum_bean.javaType}" keyProperty="${pk_colum_bean.javaProp}" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    </#if>
+    INSERT INTO `${tableName}` (
+		<#assign manIndex = 0>
+	  <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+	  <#assign manIndex = manIndex+1>
+	  <#if manIndex gt 1>,</#if>`${test.name}`
+	  </#if>
+	  </#list>
+      )
+    VALUES (
+		<#assign manIndex = 0>
+	  <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+			<#assign manIndex = manIndex+1>
+		  <#if manIndex gt 1>,</#if>
+		  <#if !test.canNull && (test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP")>
+		  <if test="${test.javaProp} != null" >
+			${r"#"}{${test.javaProp}}
+      </if>
+      <if test="${test.javaProp} == null" >
+      NOW()
+		  </if>
+		  <#else>
+		  ${r"#"}{${test.javaProp}}
+		  </#if>
+		  </#if>
+	  </#list>
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="${packagePath}.pojo.${pojoName}" >
+    <#if pk_colum_bean?? && pk_colum_bean.isAutoIncrement>
+    <selectKey resultType="${pk_colum_bean.javaType}" keyProperty="${pk_colum_bean.javaProp}" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    </#if>
+    INSERT INTO `${tableName}`
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+    <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+		<#if !test.canNull && (test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP")>
+			`${test.name}`,
+		<#else>
+		  <if test="${test.javaProp} != null" >
+			`${test.name}`,
+		  </if>
+		</#if>
+	  </#if>
+	  </#list>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+		<#if !test.canNull && (test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP")>
+		  <if test="${test.javaProp} != null" >
+			${r"#"}{${test.javaProp}},
+      </if>
+      <if test="${test.javaProp} == null" >
+      NOW(),
+		  </if>
+		<#else>
+		  <if test="${test.javaProp} != null" >
+			${r"#"}{${test.javaProp}},
+		  </if>
+		</#if>
+	  </#if>
+	  </#list>
+    </trim>
+  </insert>
+  <#if pk_colum_bean??>
+  <update id="updateByPrimaryKeySelective" parameterType="${packagePath}.pojo.${pojoName}" >
+    UPDATE `${tableName}`
+    <set >
+      <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+	  <if test="${test.javaProp} != null" >
+        `${test.name}` = ${r"#"}{${test.javaProp}},
+      </if>
+	  </#if>
+	  </#list>
+    </set>
+    WHERE `${pk_colum_bean.name}` = ${r"#"}{${pk_colum_bean.javaProp}}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="${packagePath}.pojo.${pojoName}" >
+	UPDATE `${tableName}` SET
+	  <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+        `${test.name}` = ${r"#"}{${test.javaProp}}<#if test_has_next>,</#if>
+	  </#if>
+	  </#list>
+    WHERE `${pk_colum_bean.name}` = ${r"#"}{${pk_colum_bean.javaProp}}
+  </update>
+  </#if>
+  <update id="updateByCondition" parameterType="java.util.Map" >
+    UPDATE `${tableName}`
+    <set>
+	  <#list columsList as test>
+	  <#if !test.isAutoIncrement>
+	  <if test="entity.${test.javaProp} != null" >
+        `${test.name}` = ${r"#"}{entity.${test.javaProp}},
+      </if>
+	  </#if>
+	  </#list>
+      <foreach collection="entity.nullColums" item="nullColum">
+        `${r"$"}{nullColum}` = NULL,
+      </foreach>
+    </set>
+    <include refid="map_params_where_condition" />
+  </update>
+  <update id="updateIncreateNumbers" parameterType="java.util.Map" >
+    UPDATE `${tableName}`
+    <set>
+      <foreach collection="increateNumbers" item="numberCloums">
+        `${r"$"}{numberCloums.column}` = `${r"$"}{numberCloums.column}` + ${r"#"}{numberCloums.number},
+      </foreach>
+    </set>
+    <include refid="map_params_where_condition" />
+  </update>
+  <sql id="map_params_where_condition" >
+    <trim prefix="WHERE" prefixOverrides="AND">
+      <#list columsList as test>
+	  <if test="${test.javaProp} != null" >
+        AND `${test.name}` = ${r"#"}{${test.javaProp}}
+	  </if>
+	  </#list>
+	  <if test="condition != null">
+	  <#list columsList as test>
+	  <if test="condition.${test.javaProp} != null" >
+        AND `${test.name}` = ${r"#"}{condition.${test.javaProp}}
+	  </if>
+	  </#list>
+	  </if>
+	  <if test="vo != null and !vo.expressionChainList.empty">
+        AND
+        <foreach collection="vo.expressionChainList" item="expressionChain" separator="OR">
+          <if test="!expressionChain.expressionList.empty">
+            <foreach collection="expressionChain.expressionList" item="expression" separator="AND">
+              <choose>
+                <when test="expression.type == 0">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator}
+                </when>
+                <when test="expression.type == 1">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator} ${r"#"}{expression.value}
+                </when>
+                <when test="expression.type == 2">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator} ${r"#"}{expression.value} AND ${r"#"}{expression.value1}
+                </when>
+                <when test="expression.type == 3">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator}
+                  <foreach collection="expression.values" item="value" open="(" separator="," close=")">
+                    ${r"#"}{value}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </if>
+        </foreach>
+      </if>
+      <if test="expressionChainList != null and !expressionChainList.empty">
+        AND
+        <foreach collection="expressionChainList" item="expressionChain" separator="OR">
+          <if test="!expressionChain.expressionList.empty">
+            <foreach collection="expressionChain.expressionList" item="expression" separator="AND">
+              <choose>
+                <when test="expression.type == 0">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator}
+                </when>
+                <when test="expression.type == 1">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator} ${r"#"}{expression.value}
+                </when>
+                <when test="expression.type == 2">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator} ${r"#"}{expression.value} AND ${r"#"}{expression.value1}
+                </when>
+                <when test="expression.type == 3">
+                  `${r"$"}{expression.column}` ${r"$"}{expression.operator}
+                  <foreach collection="expression.values" item="value" open="(" separator="," close=")">
+                    ${r"#"}{value}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </if>
+        </foreach>
+      </if>
+      <include refid="map_params_where_condition_ext" />
+    </trim>
+  </sql>
+  <select id="getList" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM `${tableName}`
+    <include refid="map_params_where_condition" />
+    <#if pk_colum_bean??>
+    <if test="orderBy == null" >
+      ORDER BY `${pk_colum_bean.name}` DESC
+    </if>
+    </#if>
+    <if test="orderBy != null and orderBy != 'no'" >
+      ORDER BY ${r"$"}{orderBy}
+    </if>
+    <if test="pageBeginIndex != null and pageSize != null" >
+      LIMIT ${r"#"}{pageBeginIndex},${r"#"}{pageSize}
+    </if>
+    <if test="pageBeginIndex == null and pageSize != null" >
+      LIMIT ${r"#"}{pageSize}
+    </if>
+    <if test="pageBeginIndex != null and pageSize == null" >
+      LIMIT ${r"#"}{pageBeginIndex}
+    </if>
+  </select>
+  <delete id="delete" parameterType="java.util.Map" >
+    DELETE
+    FROM `${tableName}`
+    <include refid="map_params_where_condition" />
+  </delete>
+  <select id="getCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    SELECT COUNT(1)
+    FROM `${tableName}`
+    <include refid="map_params_where_condition" />
+  </select>
+</mapper>

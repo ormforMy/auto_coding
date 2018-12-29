@@ -1,0 +1,11 @@
+package ${packagePath}.service;
+
+import ${packagePath}.pojo.${pojoName};
+import cc.s2m.web.utils.webUtils.service.BaseService;
+
+<#assign javaType = "Integer">
+<#if pk_colum_bean??>
+<#assign javaType = pk_colum_bean.javaType>
+</#if>
+public interface I${pojoName} extends BaseService<${pojoName}, ${javaType}> {
+}

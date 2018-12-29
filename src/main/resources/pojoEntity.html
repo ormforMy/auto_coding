@@ -1,0 +1,29 @@
+package ${packagePath}.pojo.entity;
+
+import cc.s2m.web.utils.webUtils.pojo.BaseModelBean;
+<#list columsList as test>
+<#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+import org.springframework.format.annotation.DateTimeFormat;
+<#break>
+</#if>
+</#list>
+
+public class ${pojoName}Entity extends BaseModelBean {
+    private static final long serialVersionUID = 1L;
+	
+	<#list columsList as test>
+	<#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	</#if>
+	private ${test.javaType} ${test.javaProp};
+	</#list>
+	
+	<#list columsList as test>
+    public ${test.javaType} ${test.javaPropGet}() {
+        return ${test.javaProp};
+    }
+	public void ${test.javaPropSet}(${test.javaType} ${test.javaProp}) {
+        this.${test.javaProp} = ${test.javaProp};
+    }
+	</#list>
+}

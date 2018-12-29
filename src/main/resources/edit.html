@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>维护 - ${pojoName} - ${adminTitleStr}</title>
+		<meta name="description" content="overview &amp; stats" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<${r"#"}include "/admin/include/cssjs_up.html" encoding="UTF-8"/>
+	</head>
+
+	<body>
+		<${r"#"}assign adminMenuPosFlag="${pojoName_small}">
+		<${r"#"}include "/admin/include/head.html" encoding="UTF-8"/>
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+			<div class="main-container-inner">
+				<a class="menu-toggler" id="menu-toggler" href="#">
+					<span class="menu-text"></span>
+				</a>
+				<${r"#"}include "/admin/include/menu.html" encoding="UTF-8"/>
+				<div class="main-content">
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="icon-home home-icon"></i>
+								<a href="/admin/">首页</a>
+							</li>
+							<li>
+								<a href="/admin/${pojoName_small}/list/">${pojoName}</a>
+							</li>
+							<li class="active">维护</li>
+						</ul><!-- .breadcrumb -->
+					</div>
+
+					<div class="page-content">
+						<div class="row">
+							<div class="col-xs-12">
+								<form role="form" class="form-horizontal" method="post">
+									<#list columsList as test>
+									<#if !test.isKey>
+									<div class="form-group">
+										<label class="col-sm-2 control-label no-padding-right"> ${test.javaProp}: </label>
+										<div class="col-sm-9">
+											<#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+											<${r"#"}if bean.${test.javaProp}?exists>
+											<input type="text" class="form-control" name="${test.javaProp}" placeholder="${test.javaProp}"  value="${r"$"}{bean.${test.javaProp}?datetime}">
+											<${r"#"}else>
+											<input type="text" class="form-control" name="${test.javaProp}" placeholder="${test.javaProp}"  value="">
+											</${r"#"}if>
+											<#else>
+                      <#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+                      <select name="${test.javaProp}" class="form-control">
+                        <option value="true" ${r"$"}{(bean.isUse?? && bean.isUse)?string("selected","")}>启用</option>
+                        <option value="false" ${r"$"}{(bean.isUse?? && !bean.isUse)?string("selected","")}>不启用</option>
+                      </select>
+                      <#else>
+                      <input type="text" class="form-control" name="${test.javaProp}" placeholder="${test.javaProp}"  value="${r"$"}{bean.${test.javaProp}}">
+                      </#if>
+											</#if>
+										</div>
+									</div>
+									<div class="space-4"></div>
+									</#if>
+									</#list>
+									<div class="clearfix form-actions">
+										<div class="text-center">
+											<button type="submit" class="btn btn-info">
+												<i class="icon-ok bigger-110"></i>
+												提交
+											</button>
+											<input type="hidden" name="${pk_colum_bean.javaProp}" value="${r"$"}{bean.${pk_colum_bean.javaProp}}" />
+											<input type="hidden" name="token" value="${r"$"}{token}" />
+											&nbsp; &nbsp; &nbsp;
+											<button type="reset" class="btn">
+												<i class="icon-undo bigger-110"></i>
+												重填
+											</button>
+										</div>
+									</div>
+								</form>
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div><!-- /.main-content -->
+			</div><!-- /.main-container-inner -->
+
+			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="icon-double-angle-up icon-only bigger-110"></i>
+			</a>
+		</div><!-- /.main-container -->
+		<${r"#"}include "/admin/include/cssjs_down.html" encoding="UTF-8"/>
+    <script src="/assets/js/jquery.validate.min.js"></script>
+    <script>
+    //required email url date dateISO number digits creditcard minlength maxlength rangelength
+    //min max range step equalTo remote
+    $('form').validate({
+      errorElement: 'span',
+      errorClass: 'help-block',
+      rules: {
+<#assign hasRolesJson = false>
+<#list columsList as test>
+<#if !test.isKey>      
+        ${hasRolesJson?string(",","")}${test.javaProp}: {
+          <#assign hasRole = false>
+          <#if !test.canNull>
+          ${hasRole?string(",","")}required: true
+          <#assign hasRole = true>
+          </#if>
+          <#if test.javaType == "java.lang.Integer" || test.javaType == "java.lang.Long">
+          ${hasRole?string(",","")}digits: true
+          <#assign hasRole = true>
+          </#if>
+          <#if test.javaType == "java.math.BigDecimal">
+          ${hasRole?string(",","")}number: true
+          <#assign hasRole = true>
+          </#if>
+        }
+        <#assign hasRolesJson = true>
+</#if>
+</#list>
+      },
+      messages: {
+<#assign hasRolesJson = false>
+<#list columsList as test>
+<#if !test.isKey>      
+        ${hasRolesJson?string(",","")}${test.javaProp}: {
+          <#assign hasRole = false>
+          <#if !test.canNull>
+          ${hasRole?string(",","")}required: "请输入 ${test.javaProp}"
+          <#assign hasRole = true>
+          </#if>
+          <#if test.javaType == "java.lang.Integer" || test.javaType == "java.lang.Long">
+          ${hasRole?string(",","")}digits: "${test.javaProp} 必须为数字"
+          <#assign hasRole = true>
+          </#if>
+          <#if test.javaType == "java.math.BigDecimal">
+          ${hasRole?string(",","")}number: "${test.javaProp} 必须为数字"
+          <#assign hasRole = true>
+          </#if>
+        }
+        <#assign hasRolesJson = true>
+</#if>
+</#list>        
+      },
+  
+      invalidHandler: function (event, validator) {
+        //display error alert on form submit  
+      },
+  
+      highlight: function (e) {
+        $(e).closest('.form-group').addClass('has-error');
+      },
+  
+      success: function (e) {
+        $(e).closest('.form-group').removeClass('has-error');
+        $(e).remove();
+      },
+  
+      errorPlacement: function (error, element) {
+        //错误信息放置位置
+        error.insertAfter(element);
+      },
+  
+      submitHandler: function (form) {//验证通过
+        checkFormMan(form);
+      },
+      invalidHandler: function (form, validator) {
+        //表单验证失败调用
+      }
+    });
+		function checkFormMan(obj){
+			$.post("/admin/${pojoName_small}/save",$(obj).serialize(),function(a){
+				if(a.code == 0){
+					location.href="/admin/${pojoName_small}/list/";
+				}else{
+					alert("保存失败" + a.msg);
+				}
+			});
+			return false;
+		}
+		</script>
+	</body>
+</html>

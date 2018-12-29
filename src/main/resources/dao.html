@@ -1,0 +1,11 @@
+package ${packagePath}.dao;
+
+import ${packagePath}.pojo.${pojoName};
+import cc.s2m.web.utils.webUtils.dao.BaseDao;
+
+<#assign javaType = "Integer">
+<#if pk_colum_bean??>
+<#assign javaType = pk_colum_bean.javaType>
+</#if>
+public interface ${pojoName}Mapper extends BaseDao<${pojoName}, ${javaType}> {
+}

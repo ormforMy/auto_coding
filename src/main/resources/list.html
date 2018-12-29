@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>${pojoName} - ${adminTitleStr}</title>
+
+		<meta name="description" content="Static &amp; Dynamic Tables" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<${r"#"}include "/admin/include/cssjs_up.html" encoding="UTF-8"/>
+	</head>
+
+	<body>
+		<${r"#"}assign adminMenuPosFlag="${pojoName_small}">
+		<${r"#"}include "/admin/include/head.html" encoding="UTF-8"/>
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+
+			<div class="main-container-inner">
+				<a class="menu-toggler" id="menu-toggler" href="#">
+					<span class="menu-text"></span>
+				</a>
+				<${r"#"}include "/admin/include/menu.html" encoding="UTF-8"/>
+				<div class="main-content">
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="icon-home home-icon"></i>
+								<a href="/admin/">首页</a>
+							</li>
+							<li class="active">${pojoName}</li>
+						</ul><!-- .breadcrumb -->
+					</div>
+
+					<div class="page-content">
+						<div class="page-header">
+							<button class="btn btn-primary btn-sm" onclick="location.href='/admin/${pojoName_small}/add'">
+								<i class="icon-plus align-top"></i>
+								添加
+							</button>
+						</div><!-- /.page-header -->
+						<div class="row">
+							<form method="post" action="/admin/${pojoName_small}/list">
+								<#assign hasDatepicker = false>
+                <#list columsList as test>
+								<#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+                <#assign hasDatepicker = true>
+                <div class="col-xs-3 form-group" style="height:34px;">
+									<div class="input-group">
+									  <div class="input-group-addon">${test.javaProp}起:</div>
+                    <input readonly type="text" class="form-control datepicker" name="${test.javaProp}Begin" value="${r"$"}{${test.javaProp}Begin}">
+                    <div class="input-group-addon">
+                      <a href="javascript:" onclick="$(this).parent().prev().val('');"><i class="icon-remove orange"></i></a>
+                    </div>
+									</div>
+								</div>
+								<div class="col-xs-3 form-group" style="height:34px;">
+									<div class="input-group">
+									  <div class="input-group-addon">${test.javaProp}止:</div>
+                    <input readonly type="text" class="form-control datepicker" name="${test.javaProp}End" value="${r"$"}{${test.javaProp}End}">
+                    <div class="input-group-addon">
+                      <a href="javascript:" onclick="$(this).parent().prev().val('');"><i class="icon-remove orange"></i></a>
+                    </div>
+									</div>
+								</div>
+                <#else>
+                <div class="col-xs-3 form-group">
+									<div class="input-group">
+									<div class="input-group-addon">${test.javaProp}:</div>
+									<input type="text" class="form-control" name="${test.javaProp}" value="${r"$"}{bean.${test.javaProp}}">
+									</div>
+								</div>
+                </#if>
+								</#list>
+							  <div class="col-xs-2 col-sm-1 form-group">
+									<input type="hidden" name="token" value="${r"$"}{token}" />
+									<button class="btn btn-info btn-sm" type="submit">查询</button>
+								</div>
+                <div class="col-xs-2 col-sm-1 form-group">
+                  <button class="btn btn-danger btn-sm" type="button" onclick="location.href='/admin/${pojoName_small}/list?excel=1&${r"$"}{pageBean.param}'">导出</button>
+								</div>
+							</form>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="table-responsive">
+											<table id="sample-table-1" class="table table-striped table-bordered table-hover">
+												<thead>
+													<tr>
+														<#list columsList as test>
+														<th>${test.javaProp}</th>
+														</#list>
+														<th class="text-center">操作</th>
+													</tr>
+												</thead>
+
+												<tbody>
+													<${r"#"}list pageBean.result as bean>
+													<tr>
+														<#list columsList as test>
+														<td>
+														<#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+														<${r"#"}if bean.${test.javaProp}?exists>
+														${r"$"}{bean.${test.javaProp}?datetime}
+														<${r"#"}else>
+														-
+														</${r"#"}if>
+														<#elseif test.type == "BIT">
+															<${r"#"}if bean.${test.javaProp}>&nbsp;&nbsp;
+																<i class="icon-ok green"></i>
+															<${r"#"}else>&nbsp;&nbsp;
+																<i class="icon-remove red"></i>
+															</${r"#"}if>
+														<#else>
+														${r"$"}{bean.${test.javaProp}}
+														</#if>		
+														</td>
+														</#list>
+														<td class="text-center">
+                              <p><a class="blue" href="/admin/${pojoName_small}/view/?${pk_colum_bean.javaProp}=${r"$"}{bean.${pk_colum_bean.javaProp}}">
+                                详情
+                              </a></p>
+                              <p><a class="green" href="/admin/${pojoName_small}/add/?${pk_colum_bean.javaProp}=${r"$"}{bean.${pk_colum_bean.javaProp}}">
+                                编辑
+                              </a></p>
+                              <p><a class="red" href="javascript:" onclick="deleteMsg('${r"$"}{bean.${pk_colum_bean.javaProp}}')">
+                                删除
+                              </a></p>
+														</td>
+													</tr>
+													</${r"#"}list>
+												</tbody>
+											</table>
+											${r"$"}{pageBean.pageToolBar}
+										</div><!-- /.table-responsive -->
+									</div><!-- /span -->
+								</div><!-- /row -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div><!-- /.main-content -->
+			</div><!-- /.main-container-inner -->
+			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="icon-double-angle-up icon-only bigger-110"></i>
+			</a>
+		</div><!-- /.main-container -->
+		<${r"#"}include "/admin/include/cssjs_down.html" encoding="UTF-8"/>
+    <#if hasDatepicker>
+    <link rel="stylesheet" href="/assets/css/jquery-ui-1.10.3.full.min.css" />
+    <script src="/assets/js/jquery-ui-1.10.3.full.min.js"></script>
+		<script src="/assets/js/jquery.ui.touch-punch.min.js"></script>
+    </#if>
+		<script type="text/javascript">
+		<#if hasDatepicker>
+    $(function(){
+      $(".datepicker").datepicker({
+				showOtherMonths: true,
+				selectOtherMonths: false,
+				changeMonth: true,
+				changeYear: true,
+				yearRange: "1915:2020",
+				dateFormat: "yy-mm-dd",
+				monthNames: [ "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月" ],
+				monthNamesShort : [ "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月" ],
+        dayNames: ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'],  
+        dayNamesShort: ['周日','周一','周二','周三','周四','周五','周六'],  
+        dayNamesMin: ['日','一','二','三','四','五','六']
+			});
+		});
+    </#if>
+    function deleteMsg(id){
+			layer.confirm("确定要删除吗?",{icon: 3, title:'提示'}, function(result) {
+				if(result) {
+					$.ajax({
+						url:"/admin/${pojoName_small}/del/",
+						type:"POST",
+						data:{"${pk_colum_bean.javaProp}":id,"rnd":Math.random(),"token":"${r"$"}{token}"},
+						success:function(a){
+							if(a.code == 0){
+								location.reload();
+							}else{
+								alert("删除失败" + a.msg);
+							}
+						}
+					});
+				}
+			});
+		}
+		</script>
+	</body>
+</html>

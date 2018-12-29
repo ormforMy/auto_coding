@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>详细信息 - ${pojoName} - ${adminTitleStr}</title>
+		<meta name="description" content="overview &amp; stats" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<${r"#"}include "/admin/include/cssjs_up.html" encoding="UTF-8"/>
+	</head>
+
+	<body>
+		<${r"#"}assign adminMenuPosFlag="${pojoName_small}">
+		<${r"#"}include "/admin/include/head.html" encoding="UTF-8"/>
+		<div class="main-container" id="main-container">
+			<script type="text/javascript">
+				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
+			</script>
+			<div class="main-container-inner">
+				<a class="menu-toggler" id="menu-toggler" href="#">
+					<span class="menu-text"></span>
+				</a>
+				<${r"#"}include "/admin/include/menu.html" encoding="UTF-8"/>
+				<div class="main-content">
+					<div class="breadcrumbs" id="breadcrumbs">
+						<script type="text/javascript">
+							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+						</script>
+
+						<ul class="breadcrumb">
+							<li>
+								<i class="icon-home home-icon"></i>
+								<a href="/admin/">首页</a>
+							</li>
+							<li>
+								<a href="/admin/${pojoName_small}/list/">${pojoName}</a>
+							</li>
+							<li class="active">查看详情</li>
+						</ul><!-- .breadcrumb -->
+					</div>
+
+					<div class="page-content">
+						<div class="row">
+							<div class="col-xs-12">
+								<form role="form" class="form-horizontal">
+									<#list columsList as test>
+									<div class="form-group">
+										<label for="form-field-2" class="col-sm-3 control-label no-padding-right"> ${test.javaProp}: </label>
+
+										<div class="col-sm-9 form-control-static">
+											<#if test.type == "DATE" || test.type == "DATETIME" || test.type == "TIMESTAMP">
+											${r"$"}{bean.${test.javaProp}?datetime}
+											<#elseif test.type == "BIT">
+											<${r"#"}if bean.${test.javaProp}>&nbsp;&nbsp;
+												<i class="icon-ok green"></i>
+											<${r"#"}else>
+												<i class="icon-remove red"></i>
+											</${r"#"}if>
+											<#else>
+											${r"$"}{bean.${test.javaProp}}
+											</#if>
+										</div>
+									</div>
+									<div class="space-4"></div>
+									</#list>
+									<div class="clearfix form-actions">
+										<div class="col-md-offset-3 col-md-9">
+											<button type="button" onclick="history.back()" class="btn btn-info">
+												<i class="icon-undo bigger-110"></i>
+												返回
+											</button>
+										</div>
+									</div>
+								</form>
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+				</div><!-- /.main-content -->
+			</div><!-- /.main-container-inner -->
+
+			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+				<i class="icon-double-angle-up icon-only bigger-110"></i>
+			</a>
+		</div><!-- /.main-container -->
+		<${r"#"}include "/admin/include/cssjs_down.html" encoding="UTF-8"/>
+	</body>
+</html>

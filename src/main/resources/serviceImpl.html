@@ -1,0 +1,22 @@
+package ${packagePath}.service.impl;
+
+import ${packagePath}.dao.${pojoName}Mapper;
+import ${packagePath}.pojo.${pojoName};
+import ${packagePath}.service.I${pojoName};
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import cc.s2m.web.utils.webUtils.service.BaseServiceImpl;
+
+<#assign javaType = "Integer">
+<#if pk_colum_bean??>
+<#assign javaType = pk_colum_bean.javaType>
+</#if>
+@Service
+public class ${pojoName}Impl extends BaseServiceImpl<${pojoName}, ${pojoName}Mapper, ${javaType}> implements I${pojoName} {
+    @Autowired
+    private ${pojoName}Mapper ${pojoName_small}Mapper;
+
+    protected ${pojoName}Mapper getDao() {
+        return ${pojoName_small}Mapper;
+    }
+}
