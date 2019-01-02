@@ -5,7 +5,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>自动生成代码</name>
   <properties>
-    <org.springframework.version>4.3.17.RELEASE</org.springframework.version>
+    <org.springframework.version>4.3.18.RELEASE</org.springframework.version>
     <org.apache.logging.log4j.version>2.3</org.apache.logging.log4j.version>
   </properties>
   <dependencies>
