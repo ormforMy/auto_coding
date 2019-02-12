@@ -22,8 +22,9 @@ public class ${pojoName}Entity extends BaseModelBean {
     public ${test.javaType} ${test.javaPropGet}() {
         return ${test.javaProp};
     }
-	public void ${test.javaPropSet}(${test.javaType} ${test.javaProp}) {
+	public ${pojoName}Entity ${test.javaPropSet}(${test.javaType} ${test.javaProp}) {
         this.${test.javaProp} = ${test.javaProp};
+        return this;
     }
 	</#list>
 }
